@@ -1,18 +1,18 @@
 const NoteService = require('../services/NoteService');
 
 module.exports = {
-    ping: (req, res)=>{
-        res.json({pong:true});
+    ping: (req, res) => {
+        res.json({ pong: true });
     },
     all: async (req, res) => {
-        let json = {error:'', result:[]};
+        let json = { error: '', result: [] };
 
         let notes = await NoteService.getAll();
 
-        for(let i in notes) {
+        for (let i in notes) {
             json.result.push({
-                id:notes[i].id,
-                title:notes[i].title
+                id: notes[i].id,
+                title: notes[i].title
             });
         }
 
@@ -20,7 +20,7 @@ module.exports = {
 
     },
     one: async (req, res) => {
-        let json = {error:'', result:{}};
+        let json = { error: '', result: {} };
 
         let id = req.params.id;
         let note = await NoteService.findById(id);
@@ -33,12 +33,56 @@ module.exports = {
 
     },
     new: async (req, res) => {
+        let json = { error: '', result: {} };
 
+        let title = req.body.title;
+        let body = req.body.body;
+
+        if (title && body) {
+            let noteId = await NoteService.add(title, body);
+
+            json.result = {
+                id:noteId,
+                title,
+                body
+            };
+
+        } else {
+            json.error = 'Campos não enviados';
+        }
+
+        res.json(json);
     },
     edit: async (req, res) => {
+        let json = { error: '', result: {} };
 
+        let id = req.params.id;
+        let title = req.body.title;
+        let body = req.body.body;
+
+        if (id && title && body) {
+
+            await NoteService.update(id, title, body);
+
+            json.result = {
+                id,
+                title,
+                body
+            };
+
+        } else {
+            json.error = 'Campos não enviados';
+        }
+
+        res.json(json);
     },
     delete: async (req, res) => {
+        let json = { error: '', result: {} };
 
+        let id = req.params.id;
+
+        await NoteService.delete(id);
+
+        res.json(json);
     },
 };
